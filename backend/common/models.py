@@ -1,0 +1,66 @@
+import uuid
+
+from django.db import models
+
+
+class TimeStampedModel(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+        ordering = ["-created_at"]
+
+
+class Location(TimeStampedModel):
+    raw_address = models.CharField(max_length=512)
+    city = models.CharField(max_length=128, blank=True)
+    state = models.CharField(max_length=64, blank=True)
+    country = models.CharField(max_length=64, blank=True, default="USA")
+    latitude = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True
+    )
+    longitude = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True
+    )
+    place_id = models.CharField(
+        max_length=255, blank=True, help_text="Map API place/reference ID"
+    )
+
+    class Meta(TimeStampedModel.Meta):
+        indexes = [models.Index(fields=["latitude", "longitude"])]
+
+    def __str__(self):
+        return self.raw_address
+
+
+class DutyStatus(models.TextChoices):
+    OFF_DUTY = "off_duty", "Off Duty"
+    SLEEPER_BERTH = "sleeper_berth", "Sleeper Berth"
+    DRIVING = "driving", "Driving"
+    ON_DUTY = "on_duty", "On Duty (Not Driving)"
+
+
+class StopType(models.TextChoices):
+    PICKUP = "pickup", "Pickup"
+    DROPOFF = "dropoff", "Drop-off"
+    FUEL = "fuel", "Fuel Stop"
+    REST_BREAK = "rest_break", "30-Minute Rest Break"
+    SLEEPER_RESET = "sleeper_reset", "10-Hour Sleeper Berth Reset"
+    RESTART_34HR = "restart_34hr", "34-Hour Restart"
+
+
+class TripStatus(models.TextChoices):
+    DRAFT = "draft", "Draft"
+    CALCULATING = "calculating", "Calculating"
+    COMPLETED = "completed", "Completed"
+    FAILED = "failed", "Failed"
+
+
+class ViolationType(models.TextChoices):
+    DAILY_DRIVING_LIMIT = "daily_driving_limit", "Daily Driving Limit Exceeded"
+    DRIVING_WINDOW_14HR = "driving_window_14hr", "14-Hour Window Exceeded"
+    BREAK_REQUIRED = "break_required", "30-Minute Break Required"
+    CYCLE_HOURS_EXCEEDED = "cycle_hours_exceeded", "70-Hour/8-Day Cycle Exceeded"
+    INSUFFICIENT_RESET = "insufficient_reset", "Insufficient 10-Hour Reset"

@@ -1,0 +1,6 @@
+*/.venv
+*/.env
+*/.pycache
+*/**/__pycache__
+
+engine.md
