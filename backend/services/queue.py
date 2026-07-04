@@ -2,6 +2,7 @@ from queue import Queue
 
 queue = Queue()
 
+
 class JobQueue:
     def get(self):
         pass

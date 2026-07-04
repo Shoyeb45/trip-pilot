@@ -141,6 +141,7 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "EXCEPTION_HANDLER": "common.exceptions.custom_exception_handler",
 }
 
 AUTH_USER_MODEL = "user.User"
