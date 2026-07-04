@@ -10,8 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+from datetime import timedelta
+from config.env_utils import getenv_with_default
 from dotenv import load_dotenv
-import os
 
 load_dotenv()
 
@@ -25,10 +26,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-0t$-f@38%m&lreqouz%=@6dm8w2_fdk62&1dq60@4(6#zo*g5z"
+SECRET_KEY = getenv_with_default("JWT_SECRET", "JWT_SECRET")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = getenv_with_default("STAGE", "dev") == "dev"
 
 ALLOWED_HOSTS = []
 
@@ -44,6 +45,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "rest_framework",
+    "rest_framework_simplejwt",
+    "user",
+    "common",
+    "eld",
+    "trips",
 ]
 
 MIDDLEWARE = [
@@ -80,13 +86,17 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": getenv_with_default("DB_NAME"),
+        "USER": getenv_with_default("DB_USER"),
+        "PASSWORD": getenv_with_default("DB_PASSWORD"),
+        "HOST": getenv_with_default("DB_HOST"),
+        "PORT": getenv_with_default("DB_PORT"),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -124,14 +134,32 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
-ORIGIN_URL = "http://localhost:5173"
-if os.getenv("ORIGIN_URL"):
-    ORIGIN_URL = os.getenv("ORIGIN_URL")
-
-CORS_ALLOWED_ORIGINS = [ORIGIN_URL]
+CORS_ALLOWED_ORIGINS = [getenv_with_default("ORIGIN_URL", "http://localhost:5173")]
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
 }
+
+AUTH_USER_MODEL = "user.User"
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(
+        minutes=int(getenv_with_default("JWT_ACCESS_TOKEN_MINUTE", 15))
+    ),
+    "REFRESH_TOKEN_LIFETIME": timedelta(
+        days=int(getenv_with_default("JWT_REFRESH_TOKEN_DAYS", 7))
+    ),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": SECRET_KEY,
+}
+
+# Password hashing
+PASSWORD_HASHERS = [
+    "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+]

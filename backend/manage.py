@@ -6,7 +6,6 @@ import sys
 from services.queue import JobQueue
 
 def main():
-    print("Starting application...")
     """Run administrative tasks."""
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
     try:
