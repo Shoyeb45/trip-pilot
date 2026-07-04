@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  /* Surfaces — asphalt-dark base, cab-dashboard contrast */
+  --color-background: #14181D;
+  --color-surface: #1C222A;
+  --color-surface-elevated: #242B35;
+  --color-border: #2E3742;
+
+  /* Brand */
+  --color-primary: #F2A33D;          /* highway amber — primary actions */
+  --color-primary-foreground: #14181D;
+  --color-secondary: #3E7CB1;        /* steel blue — secondary/info */
+  --color-secondary-foreground: #F5F7FA;
+
+  /* Feedback */
+  --color-success: #3FA772;
+  --color-warning: #E8B93F;
+  --color-danger: #E0484D;
+
+  /* Text */
+  --color-text: #E8EAED;
+  --color-text-muted: #8B93A1;
+  --color-text-subtle: #5C6572;
+
+  /* Duty status — matches the 4-row ELD grid, each hue distinct at a glance */
+  --color-status-off-duty: #6B7280;   /* gray — parked, inactive */
+  --color-status-sleeper: #3E7CB1;    /* blue — same family as secondary */
+  --color-status-driving: #F2A33D;    /* amber — the regulated, high-stakes row */
+  --color-status-on-duty: #8B6FD8;    /* violet — on duty, not driving */
+
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --radius-DEFAULT: 0.5rem;
+}
+
+/* Optional light mode, toggled via data-theme="light" on <html> or a parent */
+[data-theme="light"] {
+  --color-background: #F5F6F8;
+  --color-surface: #FFFFFF;
+  --color-surface-elevated: #FFFFFF;
+  --color-border: #E1E4E9;
+  --color-text: #14181D;
+  --color-text-muted: #5C6572;
+  --color-text-subtle: #8B93A1;
+  --color-primary-foreground: #FFFFFF;
+}
