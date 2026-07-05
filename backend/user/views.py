@@ -8,6 +8,7 @@ from .serializers import (
     LoginSerializer,
     TokenRefreshSerializer,
     UserSerializer,
+    UserUpdateSerializer,
     generate_tokens,
 )
 
@@ -71,3 +72,22 @@ class UserProfileView(APIView):
         user = request.user
         serializer = UserSerializer(user)
         return Response({"data": {"user": serializer.data}}, status=status.HTTP_200_OK)
+
+    def patch(self, request):
+        serializer = UserUpdateSerializer(
+            request.user,
+            data=request.data,
+            partial=True,
+            context={"request": request},
+        )
+        if not serializer.is_valid():
+            raise ValidationError(serializer.errors)
+
+        user = serializer.save()
+        return Response(
+            {
+                "message": "Profile updated successfully",
+                "data": {"user": UserSerializer(user).data},
+            },
+            status=status.HTTP_200_OK,
+        )

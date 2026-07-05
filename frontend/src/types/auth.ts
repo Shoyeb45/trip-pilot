@@ -34,11 +34,19 @@ export interface LoginPayload {
   password: string;
 }
 
+export interface UpdateProfilePayload {
+  email: string;
+  username: string;
+  first_name: string;
+  last_name: string;
+}
+
 export interface AuthContextValue {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (payload: LoginPayload) => Promise<void>;
   signup: (payload: SignupPayload) => Promise<void>;
+  updateProfile: (payload: UpdateProfilePayload) => Promise<void>;
   logout: () => void;
 }

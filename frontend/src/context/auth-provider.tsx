@@ -7,12 +7,18 @@ import {
 } from "react";
 import { AuthContext } from "../context/auth-context";
 import { apiClient } from "../network/api-client";
-import { getCurrentUser, login as loginApi, signup as signupApi } from "../network/auth-api";
+import {
+  getCurrentUser,
+  login as loginApi,
+  signup as signupApi,
+  updateProfile as updateProfileApi,
+} from "../network/auth-api";
 import type {
   AuthContextValue,
   LoginPayload,
   SignupPayload,
   Tokens,
+  UpdateProfilePayload,
   User,
 } from "../types/auth";
 
@@ -61,6 +67,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     handleAuthSuccess(authenticatedUser, tokens);
   }, [handleAuthSuccess]);
 
+  const updateProfile = useCallback(async (payload: UpdateProfilePayload) => {
+    const updatedUser = await updateProfileApi(payload);
+    setUser(updatedUser);
+  }, []);
+
   const logout = useCallback(() => {
     apiClient.clearTokens();
     setUser(null);
@@ -73,9 +84,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       login,
       signup,
+      updateProfile,
       logout,
     }),
-    [user, isLoading, login, signup, logout],
+    [user, isLoading, login, signup, updateProfile, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

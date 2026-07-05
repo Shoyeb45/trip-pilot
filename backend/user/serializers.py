@@ -85,3 +85,21 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ["id", "email", "username", "first_name", "last_name", "date_joined"]
         read_only_fields = ["date_joined"]
+
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["email", "username", "first_name", "last_name"]
+
+    def validate_email(self, value):
+        user = self.context["request"].user
+        if User.objects.exclude(pk=user.pk).filter(email=value).exists():
+            raise serializers.ValidationError("A user with this email already exists.")
+        return value
+
+    def validate_username(self, value):
+        user = self.context["request"].user
+        if User.objects.exclude(pk=user.pk).filter(username=value).exists():
+            raise serializers.ValidationError("A user with this username already exists.")
+        return value
