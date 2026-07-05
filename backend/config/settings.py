@@ -31,8 +31,7 @@ SECRET_KEY = getenv_with_default("JWT_SECRET", "JWT_SECRET")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = getenv_with_default("STAGE", "dev") == "dev"
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = getenv_with_default("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 # Application definition
 
