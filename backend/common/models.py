@@ -21,11 +21,45 @@ class Location(TimeStampedModel):
     country = models.CharField(max_length=100)
     country_code = models.CharField(max_length=2)
     pincode = models.CharField(max_length=10, blank=True)
-    
+
     latitude = models.FloatField()
     longitude = models.FloatField()
 
     place_id = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        db_table = "locations"
+
+
+class LocationRoute(TimeStampedModel):
+
+    start_location = models.ForeignKey(
+        Location,  # Use string reference if Location is defined later
+        on_delete=models.PROTECT,
+        related_name="location_start",
+    )
+    end_location = models.ForeignKey(
+        Location, on_delete=models.PROTECT, related_name="location_end"
+    )
+
+    distance = models.FloatField(help_text="Distance in meters")
+    time = models.FloatField(help_text="Time in milliseconds")
+
+    points_encoded = models.TextField(help_text="Encoded polyline string")
+
+    bbox = models.JSONField(help_text="Bounding box coordinates")
+
+    max_speed = models.FloatField(blank=True, null=True)
+    average_speed = models.FloatField(blank=True, null=True)
+
+
+    class Meta:
+        db_table = "location_routes"
+        verbose_name = "Location Route"
+        verbose_name_plural = "Location Routes"
+
+    def __str__(self):
+        return f"Route {self.id} ({self.distance/1000:.2f} km)"
 
 
 class DutyStatus(models.TextChoices):
@@ -50,16 +84,18 @@ class TripStatus(models.TextChoices):
     COMPLETED = "completed", "Completed"
     FAILED = "failed", "Failed"
 
+
 class GenerateStage(models.TextChoices):
     #  route, distance and time
-    GENERATING_ROUTE = 'generating_route', "Generating Route"
+    GENERATING_ROUTE = "generating_route", "Generating Route"
     # stops - fuel or rest
-    GENERATING_FUEL_STOPS = 'generating_fuel_stops', "Generating Fuel Stops"
-    GENERATING_REST_STOPS = 'generating_rest_stops', "Generating Rest Stops"
+    GENERATING_FUEL_STOPS = "generating_fuel_stops", "Generating Fuel Stops"
+    GENERATING_REST_STOPS = "generating_rest_stops", "Generating Rest Stops"
 
     # generating logs
-    GENERATING_LOGS = 'generating_logs', "Generating Logs"
-    GENERATION_COMPLETED = 'generation_completed', "Generation Completed"
+    GENERATING_LOGS = "generating_logs", "Generating Logs"
+    GENERATION_COMPLETED = "generation_completed", "Generation Completed"
+
 
 class ViolationType(models.TextChoices):
     DAILY_DRIVING_LIMIT = "daily_driving_limit", "Daily Driving Limit Exceeded"

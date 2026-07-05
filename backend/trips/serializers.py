@@ -19,4 +19,13 @@ class CreateTripInputSerializer(serializers.Serializer):
     current_location = LocationInputSerializer()
     pickup_location = LocationInputSerializer()
     drop_location = LocationInputSerializer()
+    start_date = serializers.DateTimeField(required=False, allow_null=True)
+
+    def validate_start_date(self, value):
+        if value:
+            from django.utils import timezone
+            now = timezone.now()
+            if value.date() < now.date():
+                raise serializers.ValidationError("Start date cannot be in the past.")
+        return value
     

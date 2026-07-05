@@ -2,6 +2,7 @@ import logging
 import threading
 import time
 from services.queue import JobQueue
+from services.route_generation import get_route_detail
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +22,6 @@ def process_job(item):
     logger.info("Worker: Starting processing for trip %s", trip_id)
 
     try:
-        # Import inside function to avoid circular/premature imports
         from trips.models import Trip
         from common.models import TripStatus, GenerateStage
 
@@ -31,14 +31,15 @@ def process_job(item):
             logger.error("Worker: Trip %s not found in database", trip_id)
             return
 
-        # Update status to CALCULATING
         trip.trip_status = TripStatus.CALCULATING
         trip.save()
 
         # Phase 1: Route
         trip.generate_stage = GenerateStage.GENERATING_ROUTE
         trip.save()
+        
         logger.info("Worker: Trip %s in ROUTE stage", trip_id)
+        curr_to_pickup, pickup_to_drop = get_route_detail(trip)
         time.sleep(2)
 
         # Phase 2: Stops
@@ -48,7 +49,7 @@ def process_job(item):
         time.sleep(2)
 
         # Phase 3: Logs
-        trip.generate_stage = GenerateStage.GENERATING_FUEL_STOPS
+        trip.generate_stage = GenerateStage.GENERATING_LOGS
         trip.save()
         logger.info("Worker: Trip %s in LOGS stage", trip_id)
         time.sleep(2)

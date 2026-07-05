@@ -1,5 +1,6 @@
 from django.db import models
-from common.models import Location, TimeStampedModel, TripStatus, GenerateStage
+from django.utils import timezone
+from common.models import Location, LocationRoute, TimeStampedModel, TripStatus, GenerateStage
 from user.models import User
 
 
@@ -21,11 +22,27 @@ class Trip(TimeStampedModel):
     generate_stage = models.CharField(
         max_length=50, choices=GenerateStage.choices, blank=True
     )
+    start_date = models.DateTimeField(default=timezone.now, blank=True, null=True)
     driver = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name="trips",
     )
 
+    # route detail
+    curr_to_pickup = models.ForeignKey(
+        LocationRoute,
+        on_delete=models.PROTECT,
+        related_name="curr_to_pickup_relation",
+        null=True,
+        blank=True,
+    )
+    pickup_to_drop = models.ForeignKey(
+        LocationRoute,
+        on_delete=models.PROTECT,
+        related_name="pickup_to_drop_relation",
+        null=True,
+        blank=True,
+    )
     class Meta:
         db_table = "trips"

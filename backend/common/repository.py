@@ -1,4 +1,4 @@
-from .models import Location
+from .models import Location, LocationRoute
 
 
 class CommonRepository:
@@ -13,3 +13,19 @@ class CommonRepository:
             )
             return location
         return Location.objects.create(**data)
+    
+    @staticmethod
+    def get_location_route(start_id: str, end_id: str):
+        try:
+            return LocationRoute.objects.get(
+                start_location_id=start_id,
+                end_location_id=end_id
+            )
+        except:
+            return None
+
+    @staticmethod
+    def create_location_route(**kwargs) -> LocationRoute:
+        return LocationRoute.objects.create(**kwargs)
+        
+        

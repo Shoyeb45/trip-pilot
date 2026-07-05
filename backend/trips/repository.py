@@ -15,6 +15,11 @@ class TripRepository:
             validated_data.pop("drop_location")
         )
 
+        start_date = validated_data.get("start_date")
+        if not start_date:
+            from django.utils import timezone
+            validated_data["start_date"] = timezone.now()
+
         return Trip.objects.create(
             driver=driver,
             current_location=current_location,
