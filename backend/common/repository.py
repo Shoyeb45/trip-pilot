@@ -5,7 +5,20 @@ class CommonRepository:
     @staticmethod
     def get_or_create_location(data: dict) -> Location:
         place_id = data.get('place_id')
-        
+
+        parts = []
+
+        if data.get("city"): 
+            parts.append(data.get("city"))
+
+        if data.get("state"):
+            parts.append(data.get("state"))
+
+        if data.get("country"): 
+            parts.append(data.get("country"))
+
+        data["display_name"] = ", ".join(parts)
+
         if place_id:
             location, _ = Location.objects.get_or_create(
                 place_id=place_id,
