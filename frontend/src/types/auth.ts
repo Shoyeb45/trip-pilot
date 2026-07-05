@@ -1,16 +1,44 @@
-export type AuthContextProps = {
-  accessToken: string | null;
-  refreshToken: string | null;
-  setAccessToken: (type: string) => void;
-  setRefreshToken: (type: string) => void;
-};
-
-export interface Tokens {
-  [TokenStorageKey.ACCESS_TOKEN]: string
-  [TokenStorageKey.REFRESH_TOKEN]: string
-}
-
 export enum TokenStorageKey {
   ACCESS_TOKEN = "access_token",
   REFRESH_TOKEN = "refresh_token",
+}
+
+export interface Tokens {
+  [TokenStorageKey.ACCESS_TOKEN]: string;
+  [TokenStorageKey.REFRESH_TOKEN]: string;
+}
+
+export interface User {
+  id: string;
+  email: string;
+  username: string;
+  first_name: string;
+  last_name: string;
+  date_joined: string;
+}
+
+export interface AuthResponse {
+  user: User;
+  tokens: Tokens;
+}
+
+export interface SignupPayload {
+  email: string;
+  username: string;
+  password: string;
+  confirm_password: string;
+}
+
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+export interface AuthContextValue {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (payload: LoginPayload) => Promise<void>;
+  signup: (payload: SignupPayload) => Promise<void>;
+  logout: () => void;
 }

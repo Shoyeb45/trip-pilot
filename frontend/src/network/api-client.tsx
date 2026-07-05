@@ -4,12 +4,20 @@ import axios, {
   AxiosError,
 } from "axios";
 import { TokenStorageKey, type Tokens } from "../types/auth";
+
 export interface ApiResponse<T> {
   data: T;
-  success: true;
-  message: string;
+  message?: string;
 }
-const API_BASE_URL = process.env.VITE_!; // Ensure no trailing spaces!
+
+export interface ApiErrorResponse {
+  success: false;
+  error_message: string;
+  details?: Record<string, unknown>;
+}
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
 function getAccessTokenExpiryMs(accessToken: string): number | null {
   try {
@@ -27,6 +35,14 @@ function getAccessTokenExpiryMs(accessToken: string): number | null {
   } catch {
     return null;
   }
+}
+
+export function getApiErrorMessage(error: unknown): string {
+  if (axios.isAxiosError(error)) {
+    const data = error.response?.data as ApiErrorResponse | undefined;
+    if (data?.error_message) return data.error_message;
+  }
+  return "Something went wrong. Please try again.";
 }
 
 class ApiClient {
@@ -56,26 +72,26 @@ class ApiClient {
   }
 
   public getAccessToken(): string | null {
-    return localStorage.getItem("accessToken");
+    return localStorage.getItem(TokenStorageKey.ACCESS_TOKEN);
   }
 
   public getRefreshToken(): string | null {
-    return localStorage.getItem("refreshToken");
+    return localStorage.getItem(TokenStorageKey.REFRESH_TOKEN);
   }
 
   public setTokens(tokens: Tokens): void {
     localStorage.setItem(
       TokenStorageKey.REFRESH_TOKEN,
-      tokens?.[TokenStorageKey.REFRESH_TOKEN],
+      tokens[TokenStorageKey.REFRESH_TOKEN],
     );
     localStorage.setItem(
       TokenStorageKey.ACCESS_TOKEN,
-      tokens?.[TokenStorageKey.ACCESS_TOKEN],
+      tokens[TokenStorageKey.ACCESS_TOKEN],
     );
     this.startTokenRefreshTimer();
   }
 
-  private clearTokens(): void {
+  public clearTokens(): void {
     this.stopTokenRefreshTimer();
     localStorage.removeItem(TokenStorageKey.REFRESH_TOKEN);
     localStorage.removeItem(TokenStorageKey.ACCESS_TOKEN);
@@ -114,45 +130,32 @@ class ApiClient {
 
   private async refreshAccessToken(): Promise<string> {
     const refreshToken = this.getRefreshToken();
-    const currentAccessToken = this.getAccessToken();
     if (!refreshToken) {
       throw new Error("No refresh token available");
     }
 
     try {
-      const res = await axios.post<{
-        access_token: string;
-        refresh_token: string;
-      }>(
+      const res = await axios.post<ApiResponse<Tokens>>(
         `${API_BASE_URL}/auth/refresh`,
-        { refreshToken },
+        { refresh: refreshToken },
         {
           headers: {
             "Content-Type": "application/json",
-            ...(currentAccessToken
-              ? { Authorization: `Bearer ${currentAccessToken}` }
-              : {}),
           },
         },
       );
 
-      const { access_token, refresh_token } =
-        res.data;
-
-      this.setTokens({
-        access_token,
-        refresh_token,
-      });
-      return access_token;
+      const tokens = res.data.data;
+      this.setTokens(tokens);
+      return tokens[TokenStorageKey.ACCESS_TOKEN];
     } catch (error) {
       this.clearTokens();
-      window.location.href = "/"; // Redirect to login
+      window.location.href = "/";
       throw error;
     }
   }
 
   private setupInterceptors(): void {
-    // Request interceptor: add auth header
     this.axiosInstance.interceptors.request.use((config) => {
       const token = this.getAccessToken();
       if (token) {
@@ -170,7 +173,6 @@ class ApiClient {
 
         if (error.response?.status === 401 && !originalRequest._retry) {
           if (this.isRefreshing) {
-            // Wait for refresh to complete
             return new Promise((resolve) => {
               this.failedRequestsQueue.push((token: string) => {
                 if (originalRequest.headers) {
@@ -188,11 +190,9 @@ class ApiClient {
             const newToken = await this.refreshAccessToken();
             this.isRefreshing = false;
 
-            // Resolve queued requests
             this.failedRequestsQueue.forEach((callback) => callback(newToken));
             this.failedRequestsQueue = [];
 
-            // Retry original request
             if (originalRequest.headers) {
               originalRequest.headers.Authorization = `Bearer ${newToken}`;
             }
@@ -209,18 +209,13 @@ class ApiClient {
     );
   }
 
-  // Public API methods — fully typed
   public async get<T = unknown>(
     url: string,
     config?: AxiosRequestConfig,
   ): Promise<T> {
-    try {
-      return this.axiosInstance
-        .get<ApiResponse<T>>(url, config)
-        .then((res) => res.data?.data);
-    } catch (error) {
-      throw error;
-    }
+    return this.axiosInstance
+      .get<ApiResponse<T>>(url, config)
+      .then((res) => res.data.data);
   }
 
   public async post<T, D = unknown>(
@@ -238,7 +233,9 @@ class ApiClient {
     data?: D,
     config?: AxiosRequestConfig,
   ): Promise<T> {
-    return this.axiosInstance.put<T>(url, data, config).then((res) => res.data);
+    return this.axiosInstance
+      .put<ApiResponse<T>>(url, data, config)
+      .then((res) => res.data.data);
   }
 
   public async patch<T = unknown, D = unknown>(
@@ -248,14 +245,16 @@ class ApiClient {
   ): Promise<T> {
     return this.axiosInstance
       .patch<ApiResponse<T>>(url, data, config)
-      .then((res) => res.data?.data);
+      .then((res) => res.data.data);
   }
 
   public async delete<T = unknown>(
     url: string,
     config?: AxiosRequestConfig,
   ): Promise<T> {
-    return this.axiosInstance.delete<T>(url, config).then((res) => res.data);
+    return this.axiosInstance
+      .delete<ApiResponse<T>>(url, config)
+      .then((res) => res.data.data);
   }
 }
 
