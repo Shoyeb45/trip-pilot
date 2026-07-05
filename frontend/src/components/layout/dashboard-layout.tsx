@@ -56,7 +56,7 @@ export function DashboardLayout() {
           onClick={handleLogout}
           className="text-text-muted hover:bg-surface-elevated/60 hover:text-text font-body mt-4 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"
         >
-          <LogOut className="size-[18px] shrink-0" strokeWidth={1.75} />
+          <LogOut className="size-4.5 shrink-0" strokeWidth={1.75} />
           Log out
         </button>
       </aside>

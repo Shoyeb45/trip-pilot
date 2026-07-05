@@ -7,6 +7,7 @@ export interface LocationItemResponse {
     osm_value: string;
     type: string;
     name: string;
+    city?: string;
     county: string;
     state: string;
     country: string;

@@ -61,7 +61,7 @@ export function ProfilePage() {
   const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ");
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
+    <div className="mx-auto flex w-full  flex-col gap-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-text font-display text-3xl font-bold tracking-wide">
