@@ -14,25 +14,18 @@ class TimeStampedModel(models.Model):
 
 
 class Location(TimeStampedModel):
-    raw_address = models.CharField(max_length=512)
-    city = models.CharField(max_length=128, blank=True)
-    state = models.CharField(max_length=64, blank=True)
-    country = models.CharField(max_length=64, blank=True, default="USA")
-    latitude = models.DecimalField(
-        max_digits=9, decimal_places=6, null=True, blank=True
-    )
-    longitude = models.DecimalField(
-        max_digits=9, decimal_places=6, null=True, blank=True
-    )
-    place_id = models.CharField(
-        max_length=255, blank=True, help_text="Map API place/reference ID"
-    )
+    display_name = models.CharField(max_length=255)
 
-    class Meta(TimeStampedModel.Meta):
-        indexes = [models.Index(fields=["latitude", "longitude"])]
+    city = models.CharField(max_length=100, blank=True)
+    state = models.CharField(max_length=100, blank=True)
+    country = models.CharField(max_length=100)
+    country_code = models.CharField(max_length=2)
+    pincode = models.CharField(max_length=10, blank=True)
+    
+    latitude = models.FloatField()
+    longitude = models.FloatField()
 
-    def __str__(self):
-        return self.raw_address
+    place_id = models.CharField(max_length=100, unique=True)
 
 
 class DutyStatus(models.TextChoices):
