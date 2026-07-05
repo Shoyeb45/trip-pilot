@@ -17,6 +17,7 @@ export interface CreateTripPayload {
   current_location: TripLocationPayload;
   pickup_location: TripLocationPayload;
   drop_location: TripLocationPayload;
+  start_date?: string;
 }
 
 export interface CreateTripResponse {

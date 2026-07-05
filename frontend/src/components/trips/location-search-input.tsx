@@ -126,7 +126,7 @@ export function LocationSearchInput({
           <Popover.Content
             align="start"
             sideOffset={6}
-            className="bg-surface-elevated border-border z-50 w-[var(--radix-popover-trigger-width)] overflow-hidden rounded-md border shadow-lg"
+            className="bg-surface-elevated border-border z-50 `w-(--radix-popover-trigger-width) overflow-hidden rounded-md border shadow-lg"
             onOpenAutoFocus={(event) => event.preventDefault()}
           >
             <ScrollArea.Root className="max-h-56">

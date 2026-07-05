@@ -14,6 +14,14 @@ import { LocationSearchInput } from "./location-search-input";
 const inputClassName =
   "bg-surface-elevated border-border text-text font-body w-full rounded-md border px-3 py-2 text-sm outline-none focus:border-primary";
 
+const getLocalDateString = () => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 interface AddTripModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -23,6 +31,7 @@ export function AddTripModal({ open, onOpenChange }: AddTripModalProps) {
   const navigate = useNavigate();
   const [truckNumber, setTruckNumber] = useState("");
   const [tailorNumber, setTailorNumber] = useState("");
+  const [startDate, setStartDate] = useState(getLocalDateString());
   const [currentLocation, setCurrentLocation] = useState<Location | null>(null);
   const [pickupLocation, setPickupLocation] = useState<Location | null>(null);
   const [dropLocation, setDropLocation] = useState<Location | null>(null);
@@ -32,6 +41,7 @@ export function AddTripModal({ open, onOpenChange }: AddTripModalProps) {
   const resetForm = () => {
     setTruckNumber("");
     setTailorNumber("");
+    setStartDate(getLocalDateString());
     setCurrentLocation(null);
     setPickupLocation(null);
     setDropLocation(null);
@@ -76,6 +86,7 @@ export function AddTripModal({ open, onOpenChange }: AddTripModalProps) {
         current_location: toTripLocationPayload(currentLocation),
         pickup_location: toTripLocationPayload(pickup),
         drop_location: toTripLocationPayload(dropLocation),
+        start_date: startDate || undefined,
       });
 
       toast.success("Trip added successfully");
@@ -156,6 +167,20 @@ export function AddTripModal({ open, onOpenChange }: AddTripModalProps) {
                     placeholder="202"
                   />
                 </div>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <Label.Root htmlFor="start-date" className="text-text-muted font-body text-sm">
+                  Start date
+                </Label.Root>
+                <input
+                  id="start-date"
+                  type="date"
+                  value={startDate}
+                  onChange={(event) => setStartDate(event.target.value)}
+                  min={getLocalDateString()}
+                  className={inputClassName}
+                />
               </div>
 
               <LocationSearchInput
