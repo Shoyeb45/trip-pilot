@@ -1,5 +1,5 @@
 from django.db import models
-from common.models import Location, TimeStampedModel, TripStatus
+from common.models import Location, TimeStampedModel, TripStatus, GenerateStage
 from user.models import User
 
 
@@ -17,6 +17,9 @@ class Trip(TimeStampedModel):
     tailor_number = models.IntegerField()
     trip_status = models.CharField(
         max_length=20, choices=TripStatus.choices, default=TripStatus.DRAFT
+    )
+    generate_stage = models.CharField(
+        max_length=50, choices=GenerateStage.choices, blank=True
     )
     driver = models.ForeignKey(
         User,

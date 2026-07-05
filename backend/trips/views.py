@@ -17,6 +17,10 @@ class TripView(APIView):
             validated_data=serializer.validated_data, driver=request.user
         )
 
+        # Push the trip id into the queue for background processing
+        from services.queue import JobQueue
+        JobQueue.push({"trip_id": str(trip.id)})
+
         return Response(
             {
                 "message": "Trip created successfully",
@@ -24,5 +28,6 @@ class TripView(APIView):
             },
             status=status.HTTP_201_CREATED,
         )
+
     
 

@@ -2,16 +2,30 @@ from queue import Queue
 
 queue = Queue()
 
-
 class JobQueue:
-    def get(self):
-        pass
 
-    def pop(self):
-        pass
+    @classmethod
+    def pop(cls):
+        """
+        Retrieves and removes an item from the queue. Blocks if the queue is empty.
+        """
+        return queue.get()
 
-    def top(self):
-        pass
+    @classmethod
+    def top(cls):
+        """
+        Returns the first item in the queue without removing it.
+        Non-blocking. Returns None if empty.
+        """
+        with queue.mutex:
+            if queue.queue:
+                return queue.queue[0]
+        return None
 
-    def push(self):
-        pass
+    @classmethod
+    def push(cls, item):
+        """
+        Pushes an item into the queue.
+        """
+        queue.put(item)
+

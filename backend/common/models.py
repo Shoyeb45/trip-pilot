@@ -50,6 +50,16 @@ class TripStatus(models.TextChoices):
     COMPLETED = "completed", "Completed"
     FAILED = "failed", "Failed"
 
+class GenerateStage(models.TextChoices):
+    #  route, distance and time
+    GENERATING_ROUTE = 'generating_route', "Generating Route"
+    # stops - fuel or rest
+    GENERATING_FUEL_STOPS = 'generating_fuel_stops', "Generating Fuel Stops"
+    GENERATING_REST_STOPS = 'generating_rest_stops', "Generating Rest Stops"
+
+    # generating logs
+    GENERATING_LOGS = 'generating_logs', "Generating Logs"
+    GENERATION_COMPLETED = 'generation_completed', "Generation Completed"
 
 class ViolationType(models.TextChoices):
     DAILY_DRIVING_LIMIT = "daily_driving_limit", "Daily Driving Limit Exceeded"
