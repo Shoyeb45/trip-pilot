@@ -6,7 +6,7 @@ import { TripMap } from "../components/trips/trip-map";
 import { formatDistance, formatDuration, formatTripDate } from "../utils/format";
 import { getApiErrorMessage } from "../network/api-client";
 import type { TripDetail } from "../types/trip";
-import { Navigation, Map, CheckCircle2, AlertCircle, Loader2, Route } from "lucide-react";
+import {  Map, CheckCircle2, AlertCircle, Loader2, Route } from "lucide-react";
 
 export function TripDetailPage() {
   const { tripId } = useParams<{ tripId: string }>();
