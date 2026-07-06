@@ -4,6 +4,8 @@ import type {
   TripDetail,
   NormalizedTripDetail,
   TripRoute,
+  GetTripsParams,
+  PaginatedResponse,
 } from "../types/trip";
 import { apiClient } from "./api-client";
 
@@ -65,4 +67,16 @@ export async function createTrip(
 export async function pollTrip(tripId: string): Promise<TripDetail> {
   const data = await apiClient.get<NormalizedTripDetail>(`/trip/poll/${tripId}/`);
   return denormalizeTripDetail(data);
+}
+
+export async function getTrips(
+  params?: GetTripsParams,
+): Promise<PaginatedResponse<TripDetail>> {
+  const response = await apiClient.get<PaginatedResponse<NormalizedTripDetail>>("/trip/", {
+    params,
+  });
+  return {
+    ...response,
+    results: (response.results || []).map(denormalizeTripDetail),
+  };
 }

@@ -282,3 +282,74 @@ class CreateTripInputSerializer(serializers.Serializer):
             if value.date() < now.date():
                 raise serializers.ValidationError("Start date cannot be in the past.")
         return value
+
+
+class TripListSerializer(serializers.ModelSerializer):
+    current_location = serializers.PrimaryKeyRelatedField(read_only=True)
+    pickup_location = serializers.PrimaryKeyRelatedField(read_only=True)
+    drop_location = serializers.PrimaryKeyRelatedField(read_only=True)
+    curr_to_pickup = LocationRouteSerializer(read_only=True)
+    pickup_to_drop = LocationRouteSerializer(read_only=True)
+    trip_status = serializers.SerializerMethodField()
+    generate_stage = serializers.SerializerMethodField()
+    locations = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Trip
+        fields = [
+            "id",
+            "locations",
+            "current_location",
+            "pickup_location",
+            "drop_location",
+            "truck_number",
+            "tailor_number",
+            "trip_status",
+            "generate_stage",
+            "start_date",
+            "curr_to_pickup",
+            "pickup_to_drop",
+            "total_distance_miles",
+            "total_driving_hours",
+            "total_on_duty_hours",
+            "total_rest_hours",
+            "estimated_arrival",
+            "created_at",
+            "updated_at",
+        ]
+
+    def get_trip_status(self, obj):
+        return {"value": obj.trip_status, "label": obj.get_trip_status_display()}
+
+    def get_generate_stage(self, obj):
+        if not obj.generate_stage:
+            return None
+        return {"value": obj.generate_stage, "label": obj.get_generate_stage_display()}
+
+    def get_locations(self, obj):
+        locations_dict = {}
+
+        def add_location(loc):
+            if loc and loc.id not in locations_dict:
+                locations_dict[str(loc.id)] = LocationSerializer(loc).data
+
+        if obj.current_location:
+            add_location(obj.current_location)
+        if obj.pickup_location:
+            add_location(obj.pickup_location)
+        if obj.drop_location:
+            add_location(obj.drop_location)
+
+        if obj.curr_to_pickup:
+            if obj.curr_to_pickup.start_location:
+                add_location(obj.curr_to_pickup.start_location)
+            if obj.curr_to_pickup.end_location:
+                add_location(obj.curr_to_pickup.end_location)
+
+        if obj.pickup_to_drop:
+            if obj.pickup_to_drop.start_location:
+                add_location(obj.pickup_to_drop.start_location)
+            if obj.pickup_to_drop.end_location:
+                add_location(obj.pickup_to_drop.end_location)
+
+        return locations_dict
