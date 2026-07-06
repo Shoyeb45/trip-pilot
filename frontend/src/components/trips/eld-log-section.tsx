@@ -245,7 +245,7 @@ export const EldLogSection: React.FC<EldLogSectionProps> = ({ trip }) => {
       )}
 
       {/* Main Grid Card */}
-      <div className="bg-[#141a2c] border-[#232a42] border rounded-lg p-6 flex flex-col gap-6">
+      <div className="bg-surface border-[#232a42] border rounded-lg p-6 flex flex-col gap-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h3 className="text-text font-display text-lg font-bold">
@@ -357,7 +357,7 @@ export const EldLogSection: React.FC<EldLogSectionProps> = ({ trip }) => {
       </div>
 
       {/* Stops List Card */}
-      <div className="bg-[#141a2c] border-[#232a42] border rounded-lg p-6">
+      <div className="bg-surface border-[#232a42] border rounded-lg p-6">
         <h3 className="text-text font-display text-lg font-bold mb-4">
           Trip stops
         </h3>

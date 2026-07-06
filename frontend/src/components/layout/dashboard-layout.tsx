@@ -26,7 +26,7 @@ export function DashboardLayout() {
   };
 
   return (
-    <div className="bg-background flex min-h-screen">
+    <div className="bg-background flex h-screen overflow-hidden">
       <aside className="bg-surface border-border flex w-56 shrink-0 flex-col border-r px-3 py-5">
         <div className="mb-8 flex items-center gap-2.5 px-2">
           <div className="bg-primary/15 text-primary flex size-8 items-center justify-center rounded-lg">
