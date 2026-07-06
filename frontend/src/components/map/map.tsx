@@ -32,7 +32,7 @@ export const RouteMap = ({ routeData }: { routeData: RouteData }) => {
   }
 
   // Extract coordinates and swap [lon, lat] to [lat, lon] for Leaflet
-  const rawCoordinates = routeData.paths[0].points.coordinates;
+  const rawCoordinates = routeData.paths[0]?.points?.coordinates || [];
   const leafletCoordinates: [number, number][] = rawCoordinates.map(
     ([lon, lat]) => [lat, lon],
   );

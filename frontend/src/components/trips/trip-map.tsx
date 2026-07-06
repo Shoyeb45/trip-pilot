@@ -18,8 +18,9 @@ const FitBounds = ({ points }: { points: [number, number][] }) => {
   const map = useMap();
 
   useEffect(() => {
-    if (points.length > 0) {
-      const bounds = L.latLngBounds(points);
+    const validPoints = points.filter(p => p && !isNaN(p[0]) && !isNaN(p[1]));
+    if (validPoints.length > 0) {
+      const bounds = L.latLngBounds(validPoints);
       map.fitBounds(bounds, { padding: [50, 50] });
     }
   }, [map, points]);
@@ -35,20 +36,20 @@ interface TripMapProps {
 export function TripMap({ trip }: TripMapProps) {
   const [showFuelStops, setShowFuelStops] = useState(false);
   const [showRestStops, setShowRestStops] = useState(false);
-  const fuelStopsCount = (trip.stops || []).filter(s => s.stop_type === "fuel").length;
-  const restStopsCount = (trip.stops || []).filter(s =>
-    ["rest_break", "sleeper_reset", "restart_34hr"].includes(s.stop_type) && s.location
+  const fuelStopsCount = (trip?.stops || []).filter(s => s && s.stop_type === "fuel").length;
+  const restStopsCount = (trip?.stops || []).filter(s =>
+    s && ["rest_break", "sleeper_reset", "restart_34hr"].includes(s.stop_type) && s.location
   ).length;
 
   // Decode polylines
-  const currToPickupCoords = trip.curr_to_pickup?.points_encoded
+  const currToPickupCoords = trip?.curr_to_pickup?.points_encoded
     ? (polyline.decode(trip.curr_to_pickup.points_encoded) as [
         number,
         number,
       ][])
     : [];
 
-  const pickupToDropCoords = trip.pickup_to_drop?.points_encoded
+  const pickupToDropCoords = trip?.pickup_to_drop?.points_encoded
     ? (polyline.decode(trip.pickup_to_drop.points_encoded) as [
         number,
         number,
@@ -59,17 +60,19 @@ export function TripMap({ trip }: TripMapProps) {
   const allCoords = [...currToPickupCoords, ...pickupToDropCoords];
 
   // All marker locations
-  const markerCoords: [number, number][] = [
-    [trip.current_location.latitude, trip.current_location.longitude],
-    [trip.pickup_location.latitude, trip.pickup_location.longitude],
-    [trip.drop_location.latitude, trip.drop_location.longitude],
-  ];
+  const markerCoords: [number, number][] = [];
+  if (trip?.current_location?.latitude != null && trip?.current_location?.longitude != null) {
+    markerCoords.push([trip.current_location.latitude, trip.current_location.longitude]);
+  }
+  if (trip?.pickup_location?.latitude != null && trip?.pickup_location?.longitude != null) {
+    markerCoords.push([trip.pickup_location.latitude, trip.pickup_location.longitude]);
+  }
+  if (trip?.drop_location?.latitude != null && trip?.drop_location?.longitude != null) {
+    markerCoords.push([trip.drop_location.latitude, trip.drop_location.longitude]);
+  }
 
   // Default center if no coordinates are available
-  const defaultCenter: [number, number] = [
-    trip.current_location.latitude,
-    trip.current_location.longitude,
-  ];
+  const defaultCenter: [number, number] = markerCoords[0] || [39.8283, -98.5795];
 
   return (
     <div className="bg-surface border-border flex flex-col gap-6 rounded-lg border p-6">
@@ -138,49 +141,55 @@ export function TripMap({ trip }: TripMapProps) {
             />
 
             {/* Current Location Marker */}
-            <Marker
-              position={[
-                trip.current_location.latitude,
-                trip.current_location.longitude,
-              ]}
-              icon={currentIcon}
-            >
-              <Popup>
-                <div className="font-body text-sm font-semibold text-[#38bdf8]">
-                  Current: {trip.current_location.display_name}
-                </div>
-              </Popup>
-            </Marker>
+            {trip?.current_location?.latitude != null && trip?.current_location?.longitude != null && (
+              <Marker
+                position={[
+                  trip.current_location.latitude,
+                  trip.current_location.longitude,
+                ]}
+                icon={currentIcon}
+              >
+                <Popup>
+                  <div className="font-body text-sm font-semibold text-[#38bdf8]">
+                    Current: {trip.current_location.display_name || "Unknown"}
+                  </div>
+                </Popup>
+              </Marker>
+            )}
 
             {/* Pickup Location Marker */}
-            <Marker
-              position={[
-                trip.pickup_location.latitude,
-                trip.pickup_location.longitude,
-              ]}
-              icon={pickupIcon}
-            >
-              <Popup>
-                <div className="font-body text-sm font-semibold text-primary">
-                  Pickup: {trip.pickup_location.display_name}
-                </div>
-              </Popup>
-            </Marker>
+            {trip?.pickup_location?.latitude != null && trip?.pickup_location?.longitude != null && (
+              <Marker
+                position={[
+                  trip.pickup_location.latitude,
+                  trip.pickup_location.longitude,
+                ]}
+                icon={pickupIcon}
+              >
+                <Popup>
+                  <div className="font-body text-sm font-semibold text-primary">
+                    Pickup: {trip.pickup_location.display_name || "Unknown"}
+                  </div>
+                </Popup>
+              </Marker>
+            )}
 
             {/* Drop Location Marker */}
-            <Marker
-              position={[
-                trip.drop_location.latitude,
-                trip.drop_location.longitude,
-              ]}
-              icon={dropIcon}
-            >
-              <Popup>
-                <div className="font-body text-sm font-semibold text-[#10b981]">
-                  Drop-off: {trip.drop_location.display_name}
-                </div>
-              </Popup>
-            </Marker>
+            {trip?.drop_location?.latitude != null && trip?.drop_location?.longitude != null && (
+              <Marker
+                position={[
+                  trip.drop_location.latitude,
+                  trip.drop_location.longitude,
+                ]}
+                icon={dropIcon}
+              >
+                <Popup>
+                  <div className="font-body text-sm font-semibold text-[#10b981]">
+                    Drop-off: {trip.drop_location.display_name || "Unknown"}
+                  </div>
+                </Popup>
+              </Marker>
+            )}
 
             {/* Route 1: Current to Pickup (Solid Blue line) */}
             {currToPickupCoords.length > 0 && (
@@ -199,9 +208,9 @@ export function TripMap({ trip }: TripMapProps) {
             )}
 
             {/* Intermediate Stops */}
-            {(trip.stops || []).map((stop) => {
-              if (!stop.location) {
-                return ;
+            {(trip?.stops || []).map((stop) => {
+              if (!stop || !stop.location || stop.location.latitude == null || stop.location.longitude == null) {
+                return null;
               }
               const isFuel = stop.stop_type === "fuel";
               const isRest = ["rest_break", "sleeper_reset", "restart_34hr"].includes(stop.stop_type);
@@ -215,30 +224,30 @@ export function TripMap({ trip }: TripMapProps) {
 
               const icon = isFuel ? fuelIcon : restIcon;
               const titleColor = isFuel ? "text-orange-400" : "text-indigo-400";
-              const typeLabel = stop.stop_type_display;
+              const typeLabel = stop.stop_type_display || stop.stop_type || "Stop";
 
               return (
                 <Marker
                   key={stop.id}
-                  position={[stop.location?.latitude, stop.location?.longitude]}
+                  position={[stop.location.latitude, stop.location.longitude]}
                   icon={icon}
                 >
                   <Popup>
                     <div className="font-body text-sm font-semibold flex flex-col gap-1 min-w-50">
                       <span className={`${titleColor} font-bold text-xs uppercase tracking-wider`}>
-                        Stop #{stop.sequence} &middot; {typeLabel}
+                        Stop #{stop.sequence || 0} &middot; {typeLabel}
                       </span>
                       <span className="text-text font-semibold text-sm">
-                        {stop.location?.place_name || stop.location?.display_name}
+                        {stop.location.place_name || stop.location.display_name || "Unknown"}
                       </span>
-                      {stop.location?.place_name && (
+                      {stop.location.place_name && stop.location.display_name && (
                         <span className="text-text-muted text-xs">
-                          {stop.location?.display_name}
+                          {stop.location.display_name}
                         </span>
                       )}
                       <div className="text-text-muted text-xs mt-1.5 border-t border-border/40 pt-1.5 flex flex-col gap-0.5">
-                        <span>Arrival: {new Date(stop.arrival_time).toLocaleString()}</span>
-                        <span>Duration: {stop.duration_hours.toFixed(1)} hrs</span>
+                        <span>Arrival: {stop.arrival_time ? new Date(stop.arrival_time).toLocaleString() : "N/A"}</span>
+                        <span>Duration: {(stop.duration_hours ?? 0).toFixed(1)} hrs</span>
                         {stop.remarks && <span>Remarks: {stop.remarks}</span>}
                       </div>
                     </div>

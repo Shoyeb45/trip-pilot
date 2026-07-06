@@ -34,20 +34,20 @@ export const RouteDetail: React.FC<Props> = ({ trip }) => {
             </span>
             <span
               className="text-text font-display text-sm font-semibold max-w-60 mt-1 line-clamp-2"
-              title={trip.current_location.display_name}
+              title={trip?.current_location?.display_name || ""}
             >
-              {trip.current_location.display_name}
+              {trip?.current_location?.display_name || "Unknown Location"}
             </span>
           </div>
         </div>
 
         {/* Connection 1 (Desktop) */}
         <div className="hidden md:flex flex-col items-center justify-center flex-1 min-w-25 relative -mt-5">
-          {trip.curr_to_pickup ? (
+          {trip?.curr_to_pickup ? (
             <>
               <span className="text-text-muted font-mono text-xs mb-1.5 font-medium bg-[#1e293b] border border-border/40 rounded px-2.5 py-0.5 whitespace-nowrap shadow-sm">
-                {formatDistance(trip.curr_to_pickup.distance)} &middot;{" "}
-                {formatDuration(trip.curr_to_pickup.time)}
+                {formatDistance(trip.curr_to_pickup.distance ?? 0)} &middot;{" "}
+                {formatDuration(trip.curr_to_pickup.time ?? 0)}
               </span>
               <div className="w-full h-0.5 border-t-2 border-dashed border-border/80" />
             </>
@@ -58,10 +58,10 @@ export const RouteDetail: React.FC<Props> = ({ trip }) => {
 
         {/* Connection 1 Text (Mobile) */}
         <div className="md:hidden flex pl-8 -mt-16 -mb-2">
-          {trip.curr_to_pickup && (
+          {trip?.curr_to_pickup && (
             <span className="text-text-muted font-mono text-xs font-medium bg-[#1e293b] border border-border/40 rounded px-2 py-0.5">
-              {formatDistance(trip.curr_to_pickup.distance)} &middot;{" "}
-              {formatDuration(trip.curr_to_pickup.time)}
+              {formatDistance(trip.curr_to_pickup.distance ?? 0)} &middot;{" "}
+              {formatDuration(trip.curr_to_pickup.time ?? 0)}
             </span>
           )}
         </div>
@@ -79,20 +79,20 @@ export const RouteDetail: React.FC<Props> = ({ trip }) => {
             </span>
             <span
               className="text-text font-display text-sm font-semibold max-w-60 mt-1 line-clamp-2"
-              title={trip.pickup_location.display_name}
+              title={trip?.pickup_location?.display_name || ""}
             >
-              {trip.pickup_location.display_name}
+              {trip?.pickup_location?.display_name || "Unknown Location"}
             </span>
           </div>
         </div>
 
         {/* Connection 2 (Desktop) */}
         <div className="hidden md:flex flex-col items-center justify-center flex-1 min-w-25 relative -mt-5">
-          {trip.pickup_to_drop ? (
+          {trip?.pickup_to_drop ? (
             <>
               <span className="text-text-muted font-mono text-xs mb-1.5 font-medium bg-[#1e293b] border border-border/40 rounded px-2.5 py-0.5 whitespace-nowrap shadow-sm">
-                {formatDistance(trip.pickup_to_drop.distance)} &middot;{" "}
-                {formatDuration(trip.pickup_to_drop.time)}
+                {formatDistance(trip.pickup_to_drop.distance ?? 0)} &middot;{" "}
+                {formatDuration(trip.pickup_to_drop.time ?? 0)}
               </span>
               <div className="w-full h-0.5 border-t-2 border-dashed border-border/80" />
             </>
@@ -103,10 +103,10 @@ export const RouteDetail: React.FC<Props> = ({ trip }) => {
 
         {/* Connection 2 Text (Mobile) */}
         <div className="md:hidden flex pl-8 -mt-16 -mb-2">
-          {trip.pickup_to_drop && (
+          {trip?.pickup_to_drop && (
             <span className="text-text-muted font-mono text-xs font-medium bg-[#1e293b] border border-border/40 rounded px-2 py-0.5">
-              {formatDistance(trip.pickup_to_drop.distance)} &middot;{" "}
-              {formatDuration(trip.pickup_to_drop.time)}
+              {formatDistance(trip.pickup_to_drop.distance ?? 0)} &middot;{" "}
+              {formatDuration(trip.pickup_to_drop.time ?? 0)}
             </span>
           )}
         </div>
@@ -122,9 +122,9 @@ export const RouteDetail: React.FC<Props> = ({ trip }) => {
             </span>
             <span
               className="text-text font-display text-sm font-semibold max-w-60 mt-1 line-clamp-2"
-              title={trip.drop_location.display_name}
+              title={trip?.drop_location?.display_name || ""}
             >
-              {trip.drop_location.display_name}
+              {trip?.drop_location?.display_name || "Unknown Location"}
             </span>
           </div>
         </div>
@@ -135,19 +135,19 @@ export const RouteDetail: React.FC<Props> = ({ trip }) => {
         <div>
           <span className="text-text-muted font-body text-xs">Truck #</span>
           <p className="text-text font-display text-lg font-bold mt-1">
-            {trip.truck_number}
+            {trip?.truck_number || "N/A"}
           </p>
         </div>
         <div>
           <span className="text-text-muted font-body text-xs">Trailer #</span>
           <p className="text-text font-display text-lg font-bold mt-1">
-            {trip.tailor_number}
+            {trip?.tailor_number || "N/A"}
           </p>
         </div>
         <div>
           <span className="text-text-muted font-body text-xs">Start</span>
           <p className="text-text font-display text-lg font-bold mt-1">
-            {formatTripDate(trip.start_date)}
+            {trip?.start_date ? formatTripDate(trip.start_date) : "N/A"}
           </p>
         </div>
       </div>

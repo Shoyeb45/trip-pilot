@@ -83,7 +83,7 @@ export const TripCard: React.FC<TripCardProps> = ({ trip, onDeleteSuccess }) => 
 
         <div className="flex items-center gap-1.5 text-text-muted text-xs">
           <Calendar className="size-3.5 text-text-subtle" />
-          <span>{formatTripDate(trip.start_date)}</span>
+          <span>{trip.start_date ? formatTripDate(trip.start_date) : "N/A"}</span>
         </div>
       </div>
 
@@ -96,8 +96,8 @@ export const TripCard: React.FC<TripCardProps> = ({ trip, onDeleteSuccess }) => 
           </div>
           <div className="flex flex-col">
             <span className="text-text-muted text-[10px] font-semibold uppercase tracking-wider">Start / Current</span>
-            <span className="text-text text-sm font-semibold truncate max-w-sm" title={trip.current_location.display_name}>
-              {trip.current_location.city || trip.current_location.display_name}
+            <span className="text-text text-sm font-semibold truncate max-w-sm" title={trip.current_location?.display_name || ""}>
+              {trip.current_location ? (trip.current_location.city || trip.current_location.display_name || "Unknown Location") : "Unknown Location"}
             </span>
           </div>
         </div>
@@ -109,8 +109,8 @@ export const TripCard: React.FC<TripCardProps> = ({ trip, onDeleteSuccess }) => 
           </div>
           <div className="flex flex-col">
             <span className="text-text-muted text-[10px] font-semibold uppercase tracking-wider">Pickup</span>
-            <span className="text-text text-sm font-semibold truncate max-w-sm" title={trip.pickup_location.display_name}>
-              {trip.pickup_location.city || trip.pickup_location.display_name}
+            <span className="text-text text-sm font-semibold truncate max-w-sm" title={trip.pickup_location?.display_name || ""}>
+              {trip.pickup_location ? (trip.pickup_location.city || trip.pickup_location.display_name || "Unknown Location") : "Unknown Location"}
             </span>
           </div>
         </div>
@@ -121,8 +121,8 @@ export const TripCard: React.FC<TripCardProps> = ({ trip, onDeleteSuccess }) => 
           </div>
           <div className="flex flex-col">
             <span className="text-text-muted text-[10px] font-semibold uppercase tracking-wider">Drop-off</span>
-            <span className="text-text text-sm font-semibold truncate max-w-sm" title={trip.drop_location.display_name}>
-              {trip.drop_location.city || trip.drop_location.display_name}
+            <span className="text-text text-sm font-semibold truncate max-w-sm" title={trip.drop_location?.display_name || ""}>
+              {trip.drop_location ? (trip.drop_location.city || trip.drop_location.display_name || "Unknown Location") : "Unknown Location"}
             </span>
           </div>
         </div>
@@ -133,10 +133,10 @@ export const TripCard: React.FC<TripCardProps> = ({ trip, onDeleteSuccess }) => 
         <div className="flex items-center gap-4 text-xs">
           <div className="flex items-center gap-1 text-text-muted">
             <Truck className="size-3.5 text-text-subtle" />
-            <span>Truck #: <strong className="text-text font-semibold">{trip.truck_number}</strong></span>
+            <span>Truck #: <strong className="text-text font-semibold">{trip.truck_number || "N/A"}</strong></span>
           </div>
           <div className="text-text-muted">
-            <span>Trailer #: <strong className="text-text font-semibold">{trip.tailor_number}</strong></span>
+            <span>Trailer #: <strong className="text-text font-semibold">{trip.tailor_number || "N/A"}</strong></span>
           </div>
         </div>
 
