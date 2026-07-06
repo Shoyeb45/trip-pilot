@@ -152,16 +152,7 @@ function statusToColor(statusStr: string): string {
 export const EldLogSection: React.FC<EldLogSectionProps> = ({ trip }) => {
   const [activeDay, setActiveDay] = useState(1);
 
-  // If logs are not available yet (calculating/draft)
-  if (!trip.eld_daily_logs || trip.eld_daily_logs.length === 0) {
-    return (
-      <div className="bg-surface border-border flex flex-col items-center justify-center gap-3 rounded-lg border p-8 text-center">
-        <RefreshCw className="size-8 animate-spin text-primary" />
-        <h3 className="text-text font-display text-lg font-bold">Logs are being generated</h3>
-        <p className="text-text-muted text-sm">Once the processing completes, your ELD daily charts will appear here.</p>
-      </div>
-    );
-  }
+
 
   // Active day details
   const activeDailyLog = useMemo(() => {
@@ -238,6 +229,17 @@ export const EldLogSection: React.FC<EldLogSectionProps> = ({ trip }) => {
       );
     }).filter(Boolean);
   }, [dayEntries, dayStart]);
+
+  // If logs are not available yet (calculating/draft)
+  if (!trip?.eld_daily_logs || trip.eld_daily_logs.length === 0) {
+    return (
+      <div className="bg-surface border-border flex flex-col items-center justify-center gap-3 rounded-lg border p-8 text-center">
+        <RefreshCw className="size-8 animate-spin text-primary" />
+        <h3 className="text-text font-display text-lg font-bold">Logs are being generated</h3>
+        <p className="text-text-muted text-sm">Once the processing completes, your ELD daily charts will appear here.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6">
