@@ -82,22 +82,18 @@ class EngineState:
 
 
 def get_cycle_hours_used(driver, trip_start_date: date) -> float:
-    """
-    Sum of ELDDailyLog.total_on_duty_hours for this driver in the rolling
-    8-day window ending at trip_start_date (exclusive).
-
-    Returns 0.0 if no previous completed trips exist (first trip ever).
-    """
     from django.db.models import Sum
     from trips.models import ELDDailyLog
 
-    window_start = trip_start_date - timedelta(days=8)
+    window_start = trip_start_date - timedelta(days=7)
     result = ELDDailyLog.objects.filter(
         trip__driver=driver,
         trip__trip_status="completed",
+        trip__deleted=False,
         log_date__gte=window_start,
-        log_date__lt=trip_start_date,
+        log_date__lte=trip_start_date,
     ).aggregate(total=Sum("total_on_duty_hours"))
+    
     return float(result["total"] or 0.0)
 
 

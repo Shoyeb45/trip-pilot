@@ -35,7 +35,7 @@ def process_job(item):
                 "current_location",
                 "pickup_location",
                 "drop_location",
-            ).get(id=trip_id)
+            ).get(id=trip_id, deleted=False)
         except Trip.DoesNotExist:
             logger.error("Worker: Trip %s not found in database", trip_id)
             return

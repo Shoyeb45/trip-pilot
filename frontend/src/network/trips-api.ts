@@ -6,10 +6,11 @@ import type {
   TripRoute,
   GetTripsParams,
   PaginatedResponse,
+  DashboardMetrics,
 } from "../types/trip";
 import { apiClient } from "./api-client";
 
-function denormalizeTripDetail(normalized: NormalizedTripDetail): TripDetail {
+export function denormalizeTripDetail(normalized: NormalizedTripDetail): TripDetail {
   const {
     locations,
     current_location,
@@ -79,4 +80,14 @@ export async function getTrips(
     ...response,
     results: (response.results || []).map(denormalizeTripDetail),
   };
+}
+
+export async function deleteTrip(tripId: string): Promise<{ success: boolean }> {
+  return apiClient.delete<{ success: boolean }>("/trip/", {
+    params: { trip_id: tripId },
+  });
+}
+
+export async function getDashboardMetrics(): Promise<DashboardMetrics> {
+  return apiClient.get<DashboardMetrics>("/trip/metrics/");
 }

@@ -176,7 +176,7 @@ export const TripsList: React.FC = () => {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {trips.map((trip) => (
-              <TripCard key={trip.id} trip={trip} />
+              <TripCard key={trip.id} trip={trip} onDeleteSuccess={fetchTripsList} />
             ))}
           </div>
 

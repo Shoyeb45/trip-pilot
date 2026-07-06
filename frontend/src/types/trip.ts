@@ -148,6 +148,11 @@ export interface TripDetail {
   start_date: string;
   curr_to_pickup: TripRoute | null;
   pickup_to_drop: TripRoute | null;
+  total_distance_miles: number | null;
+  total_driving_hours: number | null;
+  total_on_duty_hours: number | null;
+  total_rest_hours: number | null;
+  estimated_arrival: string | null;
   stops: TripStop[];
   duty_log_entries: DutyLogEntry[];
   eld_daily_logs: ELDDailyLog[];
@@ -201,6 +206,11 @@ export interface NormalizedTripDetail {
   start_date: string;
   curr_to_pickup: NormalizedLocationRoute | null;
   pickup_to_drop: NormalizedLocationRoute | null;
+  total_distance_miles: number | null;
+  total_driving_hours: number | null;
+  total_on_duty_hours: number | null;
+  total_rest_hours: number | null;
+  estimated_arrival: string | null;
   stops: NormalizedTripStop[];
   duty_log_entries: DutyLogEntry[];
   eld_daily_logs: ELDDailyLog[];
@@ -223,5 +233,14 @@ export interface GetTripsParams {
   page_size?: number;
   date?: string;
   location?: string;
+}
+
+export interface DashboardMetrics {
+  total_trips: number;
+  total_miles: number;
+  completed_trips_count: number;
+  avg_driving_hours: number;
+  cycle_hours_remaining: number;
+  recent_trips: TripDetail[];
 }
 

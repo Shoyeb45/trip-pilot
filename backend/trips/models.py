@@ -37,6 +37,7 @@ class Trip(TimeStampedModel):
         on_delete=models.CASCADE,
         related_name="trips",
     )
+    deleted = models.BooleanField(default=False)
 
     # route detail
     curr_to_pickup = models.ForeignKey(

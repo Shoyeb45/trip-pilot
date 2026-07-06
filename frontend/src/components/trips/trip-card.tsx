@@ -1,4 +1,4 @@
-import type React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import type { TripDetail } from "../../types/trip";
 import {
@@ -6,16 +6,36 @@ import {
   formatDuration,
   formatTripDate,
 } from "../../utils/format";
-import { Calendar, Truck, ArrowRight, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { Calendar, Truck, ArrowRight, CheckCircle2, AlertCircle, Loader2, Trash2, Check, X } from "lucide-react";
+import { deleteTrip } from "../../network/trips-api";
+import { toast } from "sonner";
+import { getApiErrorMessage } from "../../network/api-client";
 
 interface TripCardProps {
   trip: TripDetail;
+  onDeleteSuccess?: () => void;
 }
 
-export const TripCard: React.FC<TripCardProps> = ({ trip }) => {
+export const TripCard: React.FC<TripCardProps> = ({ trip, onDeleteSuccess }) => {
   const isCompleted = trip.trip_status.value === "completed";
   const isFailed = trip.trip_status.value === "failed";
   const isCalculating = trip.trip_status.value === "calculating";
+
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteTrip(trip.id);
+      onDeleteSuccess?.();
+    } catch (err) {
+      toast.error(getApiErrorMessage(err));
+      setShowConfirm(false);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   // Calculate total distance & time if available
   const totalMeters = (trip.curr_to_pickup?.distance || 0) + (trip.pickup_to_drop?.distance || 0);
@@ -130,6 +150,42 @@ export const TripCard: React.FC<TripCardProps> = ({ trip }) => {
                 {formatDuration(totalTimeMs)}
               </span>
             </div>
+          )}
+
+          {showConfirm ? (
+            <div className="flex items-center gap-1 bg-surface-elevated border border-border/80 rounded-full p-0.5 animate-in fade-in zoom-in-95 duration-200">
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="flex items-center justify-center size-7 rounded-full bg-rose-500 text-black hover:bg-rose-600 transition-colors cursor-pointer disabled:opacity-50"
+                title="Confirm delete"
+              >
+                {isDeleting ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  <Check className="size-3.5" />
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowConfirm(false)}
+                disabled={isDeleting}
+                className="flex items-center justify-center size-7 rounded-full text-text-muted hover:bg-surface hover:text-text rounded-full transition-colors cursor-pointer"
+                title="Cancel"
+              >
+                <X className="size-3.5" />
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShowConfirm(true)}
+              className="flex items-center justify-center size-8 rounded-full bg-surface-elevated text-text-muted hover:bg-rose-950/40 hover:text-rose-400 hover:border-rose-500/30 border border-transparent transition-colors cursor-pointer"
+              title="Delete trip"
+            >
+              <Trash2 className="size-4" />
+            </button>
           )}
 
           <Link

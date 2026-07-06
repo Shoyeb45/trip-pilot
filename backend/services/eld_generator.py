@@ -1,18 +1,3 @@
-"""
-services/eld_generator.py
---------------------------
-Builds ELDDailyLog rows from the DutyLogEntry rows of a completed trip.
-
-Rules (per FMCSA / engine.md §9):
-  - One ELDDailyLog row per calendar day the trip spans.
-  - If a DutyLogEntry crosses midnight, it is split proportionally across
-    two log rows.
-  - Each row's four *_hours columns must sum to exactly 24.0 — any gap is
-    padded with Off Duty.
-  - has_violations is set to True for any day that has a matching
-    TripViolation row.
-"""
-
 import logging
 from datetime import date, datetime, time, timedelta
 from typing import Any
@@ -20,7 +5,6 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 
-# ── Internal accumulator ─────────────────────────────────────────────────────
 
 _BUCKET_KEYS = ("off_duty", "sleeper_berth", "driving", "on_duty")
 
