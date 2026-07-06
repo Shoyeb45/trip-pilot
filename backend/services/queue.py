@@ -2,6 +2,7 @@ from queue import Queue
 
 queue = Queue()
 
+
 class JobQueue:
 
     @classmethod
@@ -28,4 +29,3 @@ class JobQueue:
         Pushes an item into the queue.
         """
         queue.put(item)
-

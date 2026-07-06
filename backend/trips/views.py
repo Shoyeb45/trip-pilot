@@ -20,6 +20,7 @@ class TripView(APIView):
 
         # Push the trip id into the queue for background processing
         from services.queue import JobQueue
+
         JobQueue.push({"trip_id": str(trip.id)})
 
         return Response(
@@ -36,7 +37,27 @@ class TripPollView(APIView):
 
     def get(self, request, trip_id):
         try:
-            trip = Trip.objects.get(id=trip_id, driver=request.user)
+            trip = (
+                Trip.objects.select_related(
+                    "current_location",
+                    "pickup_location",
+                    "drop_location",
+                    "curr_to_pickup",
+                    "pickup_to_drop",
+                    "curr_to_pickup__start_location",
+                    "curr_to_pickup__end_location",
+                    "pickup_to_drop__start_location",
+                    "pickup_to_drop__end_location",
+                )
+                .prefetch_related(
+                    "stops",
+                    "stops__location",
+                    "duty_log_entries",
+                    "eld_daily_logs",
+                    "violations",
+                )
+                .get(id=trip_id, driver=request.user)
+            )
         except Trip.DoesNotExist:
             return Response(
                 {"success": False, "error_message": "Trip not found."},
@@ -50,6 +71,3 @@ class TripPollView(APIView):
             },
             status=status.HTTP_200_OK,
         )
-
-    
-

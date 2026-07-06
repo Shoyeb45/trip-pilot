@@ -12,5 +12,5 @@ class TripsConfig(AppConfig):
             return
 
         from services.worker import start_worker
-        start_worker()
 
+        start_worker()

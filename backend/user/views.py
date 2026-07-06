@@ -12,6 +12,7 @@ from .serializers import (
     generate_tokens,
 )
 
+
 class SignupView(APIView):
     permission_classes = [AllowAny]
 

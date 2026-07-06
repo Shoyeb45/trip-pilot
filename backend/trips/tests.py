@@ -5,12 +5,11 @@ from trips.models import Trip
 from user.models import User
 from services.route_generation import get_route_detail
 
+
 class RouteGenerationTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
-            username="testdriver",
-            email="driver@example.com",
-            password="password"
+            username="testdriver", email="driver@example.com", password="password"
         )
         self.loc1 = Location.objects.create(
             display_name="Location 1",
@@ -18,7 +17,7 @@ class RouteGenerationTest(TestCase):
             longitude=69.668365,
             place_id="loc1",
             country="India",
-            country_code="IN"
+            country_code="IN",
         )
         self.loc2 = Location.objects.create(
             display_name="Location 2",
@@ -26,7 +25,7 @@ class RouteGenerationTest(TestCase):
             longitude=70.131975,
             place_id="loc2",
             country="India",
-            country_code="IN"
+            country_code="IN",
         )
         self.trip = Trip.objects.create(
             driver=self.user,
@@ -52,7 +51,7 @@ class RouteGenerationTest(TestCase):
                     "details": {
                         "max_speed": [[0, 459, None], [459, 485, 80]],
                         "average_speed": [[0, 2, 12], [2, 6, 18]],
-                    }
+                    },
                 }
             ]
         }
@@ -85,6 +84,7 @@ from trips.serializers import CreateTripInputSerializer
 from django.utils import timezone
 from datetime import timedelta
 
+
 class TripValidationTest(TestCase):
     def setUp(self):
         self.loc_data = {
@@ -95,14 +95,14 @@ class TripValidationTest(TestCase):
             "pincode": "12345",
             "latitude": 12.34,
             "longitude": 56.78,
-            "place_id": "test_place"
+            "place_id": "test_place",
         }
         self.base_data = {
             "truck_number": 123,
             "tailor_number": 456,
             "current_location": self.loc_data,
             "pickup_location": self.loc_data,
-            "drop_location": self.loc_data
+            "drop_location": self.loc_data,
         }
 
     def test_serializer_valid_date(self):
@@ -124,5 +124,3 @@ class TripValidationTest(TestCase):
         serializer = CreateTripInputSerializer(data=data)
         self.assertFalse(serializer.is_valid())
         self.assertIn("start_date", serializer.errors)
-
-

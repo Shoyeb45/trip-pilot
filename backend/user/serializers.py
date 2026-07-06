@@ -101,5 +101,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     def validate_username(self, value):
         user = self.context["request"].user
         if User.objects.exclude(pk=user.pk).filter(username=value).exists():
-            raise serializers.ValidationError("A user with this username already exists.")
+            raise serializers.ValidationError(
+                "A user with this username already exists."
+            )
         return value
