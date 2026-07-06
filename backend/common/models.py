@@ -1,6 +1,7 @@
 import uuid
 
 from django.db import models
+from django.db.models import Index
 
 
 class TimeStampedModel(models.Model):
@@ -13,22 +14,46 @@ class TimeStampedModel(models.Model):
         ordering = ["-created_at"]
 
 
+class LocationType(models.TextChoices):
+    WAYPOINT = "waypoint", "Waypoint"
+    GAS_STATION = "gas_station", "Gas Station"
+    MOTEL_HOTEL = "motel_hotel", "Motel / Hotel"
+    REST_AREA = "rest_area", "Rest Area"
+
+
 class Location(TimeStampedModel):
     display_name = models.CharField(max_length=255)
 
+    # For named POIs (gas stations, motels): store the business name separately
+    place_name = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Business name (e.g. 'Shell Station', 'Comfort Inn')",
+    )
+
+    location_type = models.CharField(
+        max_length=20,
+        choices=LocationType.choices,
+        default=LocationType.WAYPOINT,
+        db_index=True,
+    )
+
     city = models.CharField(max_length=100, blank=True)
     state = models.CharField(max_length=100, blank=True)
-    country = models.CharField(max_length=100)
-    country_code = models.CharField(max_length=2)
+    country = models.CharField(max_length=100, blank=True)
+    country_code = models.CharField(max_length=2, blank=True)
     pincode = models.CharField(max_length=10, blank=True)
 
     latitude = models.FloatField()
     longitude = models.FloatField()
 
-    place_id = models.CharField(max_length=100, unique=True)
+    place_id = models.CharField(max_length=200, unique=True)
 
     class Meta:
         db_table = "locations"
+        indexes = [
+            Index(fields=["location_type", "latitude", "longitude"]),
+        ]
 
 
 class LocationRoute(TimeStampedModel):
@@ -51,7 +76,6 @@ class LocationRoute(TimeStampedModel):
 
     max_speed = models.FloatField(blank=True, null=True)
     average_speed = models.FloatField(blank=True, null=True)
-
 
     class Meta:
         db_table = "location_routes"

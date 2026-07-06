@@ -2,7 +2,10 @@ import logging
 
 from rest_framework.views import exception_handler as drf_exception_handler
 from rest_framework.response import Response
-from rest_framework.exceptions import APIException, ValidationError as DRFValidationError
+from rest_framework.exceptions import (
+    APIException,
+    ValidationError as DRFValidationError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +23,11 @@ def _flatten_detail(detail):
                 joined = " ".join(str(m) for m in msgs)
             else:
                 joined = str(msgs)
-            parts.append(joined if field in ("non_field_errors", "__all__") else f"{field}: {joined}")
+            parts.append(
+                joined
+                if field in ("non_field_errors", "__all__")
+                else f"{field}: {joined}"
+            )
         message = " | ".join(parts)
         return message, details
 
@@ -37,7 +44,10 @@ def custom_exception_handler(exc, context):
         # Not a DRF/recognized exception (e.g. an unhandled Python exception) — 500
         logger.exception("Unhandled exception in view: %s", context.get("view"))
         return Response(
-            {"success": False, "error_message": "Something went wrong. Please try again later."},
+            {
+                "success": False,
+                "error_message": "Something went wrong. Please try again later.",
+            },
             status=500,
         )
 
