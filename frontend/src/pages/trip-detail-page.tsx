@@ -7,6 +7,7 @@ import { getApiErrorMessage } from "../network/api-client";
 import type { TripDetail } from "../types/trip";
 import { CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { RouteDetail } from "../components/trips/route-detail";
+import { EldLogSection } from "../components/trips/eld-log-section";
 
 export function TripDetailPage() {
   const { tripId } = useParams<{ tripId: string }>();
@@ -156,6 +157,8 @@ export function TripDetailPage() {
         <RouteDetail trip={trip} />
 
         <TripMap trip={trip} />
+
+        <EldLogSection trip={trip} />
       </div>
     </div>
   );

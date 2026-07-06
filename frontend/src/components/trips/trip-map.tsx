@@ -257,7 +257,7 @@ export function TripMap({ trip }: TripMapProps) {
                   icon={icon}
                 >
                   <Popup>
-                    <div className="font-body text-sm font-semibold flex flex-col gap-1 min-w-[200px]">
+                    <div className="font-body text-sm font-semibold flex flex-col gap-1 min-w-50">
                       <span className={`${titleColor} font-bold text-xs uppercase tracking-wider`}>
                         Stop #{stop.sequence} &middot; {typeLabel}
                       </span>

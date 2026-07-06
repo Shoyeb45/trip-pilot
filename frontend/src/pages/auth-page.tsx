@@ -25,10 +25,12 @@ export function AuthPage() {
       <div className="bg-surface border-border w-full max-w-md rounded-lg border p-8 shadow-lg">
         <div className="mb-6 text-center">
           <h1 className="text-text font-display text-2xl font-bold tracking-wide uppercase">
-            ELD Log Generator
+            Trip Pilot
           </h1>
           <p className="text-text-muted font-body mt-1 text-sm">
-            {mode === "login" ? "Sign in to your account" : "Create a new account"}
+            {mode === "login"
+              ? "Sign in to your account"
+              : "Create a new account"}
           </p>
         </div>
 

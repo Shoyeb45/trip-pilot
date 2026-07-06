@@ -33,7 +33,7 @@ export function DashboardLayout() {
             <Truck className="size-4" strokeWidth={2.25} />
           </div>
           <span className="text-text font-display text-lg font-bold tracking-wide">
-            ELD Planner
+            Trip Pilot
           </span>
         </div>
 
