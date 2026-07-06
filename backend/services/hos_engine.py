@@ -376,20 +376,6 @@ def drive_leg(
     route_points: list[tuple],  # decoded from route.points_encoded
     cumulative_dists: list[float],  # from build_cumulative_distances()
 ) -> None:
-    """
-    Drive a single leg of the route.
-
-    Breaks the leg into the smallest safe chunk at each iteration — bounded
-    by whichever HOS rule triggers first — then handles the trigger before
-    looping.
-
-    The leg is defined by `route.distance` (metres).  The state's `odometer`
-    is cumulative across both legs; mileage *within this leg* is tracked
-    separately so route_points interpolation works correctly.
-
-    After this function returns, state.current_time has advanced by the
-    total driving + stop time of this leg.
-    """
     from common.models import DutyStatus
     from services.polyline_utils import interpolate_position
 
@@ -430,7 +416,6 @@ def drive_leg(
             logger.error("Engine — drive loop exceeded 10,000 iterations; aborting leg")
             break
 
-        # ── ① Compute the largest safe driving chunk ──────────────────────
         miles_to_break = max(
             0.0,
             (BREAK_THRESHOLD_HOURS - state.hours_driven_since_break)
@@ -444,7 +429,6 @@ def drive_leg(
         )
         miles_to_fuel = max(0.0, next_fuel_at - state.odometer)
 
-        # If all driving caps are already hit, we need a reset — don't drive
         if miles_to_11hr_cap < _EPS or miles_to_14hr_cap < _EPS:
             miles_chunk = 0.0
         else:
@@ -452,24 +436,26 @@ def drive_leg(
                 miles_to_break if miles_to_break > _EPS else miles_left,
                 miles_to_11hr_cap,
                 miles_to_14hr_cap,
-                miles_to_fuel if miles_to_fuel > _EPS else miles_left,
+                miles_to_fuel,
                 miles_left,
             )
 
-        # ── ② Handle driving-cap before emitting chunk ────────────────────
         if miles_chunk < _EPS:
-            # Must take a sleeper reset before driving more
             within_leg_miles = state.odometer - leg_start_odometer
             lat, lon = interpolate_position(
                 route_points, cumulative_dists, within_leg_miles
             )
-            _insert_sleeper_reset(state, lat, lon)
-            # Recalculate — window is now fresh
+            if miles_to_fuel < _EPS:
+                # Fuel checkpoint reached exactly — handle it, don't reset
+                _insert_fuel_stop(state, lat, lon)
+                next_fuel_at += FUEL_INTERVAL_MILES
+            else:
+                # Must take a sleeper reset before driving more
+                _insert_sleeper_reset(state, lat, lon)
             continue
 
         hours_chunk = miles_chunk / AVERAGE_SPEED_MPH
 
-        # ── ③ Cycle limit check before emitting driving chunk ─────────────
         if state.cycle_hours_used + hours_chunk > MAX_CYCLE_HOURS - _EPS:
             within_leg_miles = state.odometer - leg_start_odometer
             lat, lon = interpolate_position(
@@ -478,7 +464,6 @@ def drive_leg(
             _insert_34hr_restart(state, lat, lon)
             continue
 
-        # ── ④ Emit DRIVING segment ────────────────────────────────────────
         odo_after = state.odometer + miles_chunk
         _emit_entry(
             state,
@@ -495,25 +480,17 @@ def drive_leg(
         state.cycle_hours_used += hours_chunk
         miles_left -= miles_chunk
 
-        # ── ⑤ Handle triggers in order of priority ────────────────────────
-
         # 30-min break (check first — lower priority than cap resets)
         if state.hours_driven_since_break >= BREAK_THRESHOLD_HOURS - _EPS:
             _insert_rest_break(state)
 
-        # Fuel stop (check before cap — fuel stop happens at mileage mark,
-        # cap resets happen based on time; mileage mark takes priority here
-        # since we sized the chunk to stop exactly at it)
-        if state.odometer >= next_fuel_at - _EPS and miles_left > _EPS:
+        if state.odometer >= next_fuel_at - _EPS:
             within_leg_miles = state.odometer - leg_start_odometer
             lat, lon = interpolate_position(
                 route_points, cumulative_dists, within_leg_miles
             )
             _insert_fuel_stop(state, lat, lon)
             next_fuel_at += FUEL_INTERVAL_MILES
-
-        # 11-hr cap or 14-hr window (handle at top of next iteration via chunk=0 branch)
-        # The check on the next loop iteration will detect the cap and call _insert_sleeper_reset.
 
     logger.info(
         "Engine — leg complete | odometer=%.2f mi | time=%s",
