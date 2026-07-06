@@ -61,7 +61,7 @@ class TripView(APIView):
         page = paginator.paginate_queryset(queryset, request, view=self)
         if page is not None:
             serializer = TripListSerializer(page, many=True)
-            return paginator.get_paginated_response(serializer.data)
+            return Response( { "data" : paginator.get_paginated_response(serializer.data).data })
 
         serializer = TripListSerializer(queryset, many=True)
         return Response(
